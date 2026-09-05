@@ -57,66 +57,112 @@ def post_account_2():
         return
 
     print(f"==========================================")
-    print(f"🇮🇳 Account 2 (@indian.traditions.1) - DAY {day_num} / 365")
+    print(f"🇮🇳 Account 2 (@{username}) - DAY {day_num} / 365 POSTING")
     print(f"✨ Category: {post_item.get('category_tag', post_item['category'])}")
     print(f"💬 Quote: {post_item['quote']}")
     print(f"==========================================")
 
     img_name = f"day_{day_num:03d}.png"
-    img_path = os.path.join(IMAGES_DIR, img_name)
+    local_image_path = os.path.abspath(os.path.join(IMAGES_DIR, img_name))
 
-    if not os.path.exists(img_path):
-        print(f"Error: Image file {img_path} not found!")
+    if not os.path.exists(local_image_path):
+        print(f"Error: Image file {local_image_path} not found!")
         return
 
     full_caption = f"{post_item['caption']}\n\n{post_item['hashtags']}"
-
-    session_dir = os.path.join(BASE_DIR, "browser_session_acc2")
+    user_data_dir = os.path.join(BASE_DIR, "browser_session_acc2")
 
     with sync_playwright() as p:
-        print("🌐 Navigating to Instagram...")
-        context = p.chromium.launch_persistent_context(
-            user_data_dir=session_dir,
-            headless=True,
-            viewport={'width': 1280, 'height': 800},
-            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        browser = p.chromium.launch_persistent_context(
+            user_data_dir,
+            headless=False,
+            viewport={"width": 1280, "height": 800}
         )
-        page = context.pages[0] if context.pages else context.new_page()
+        page = browser.new_page()
 
-        page.goto("https://www.instagram.com/", wait_until="networkidle")
-        time.sleep(3)
+        print("🌐 Navigating to Instagram...")
+        for attempt in range(3):
+            try:
+                page.goto("https://www.instagram.com/", wait_until="domcontentloaded", timeout=30000)
+                time.sleep(4)
+                break
+            except Exception as e:
+                print(f"  Retry #{attempt+1} navigating to Instagram: {e}")
+                time.sleep(3)
 
-        if "login" in page.url or page.locator("input[name='username']").is_visible():
-            print(f"🔑 Logging into Account 2 (@{username})...")
-            page.fill("input[name='username']", username)
-            page.fill("input[name='password']", password)
-            page.click("button[type='submit']")
-            page.wait_for_load_state("networkidle")
-            time.sleep(5)
+        # Check if login form is present
+        user_field = page.locator("input[name='username'], input[name='email'], input[aria-label*='username'], input[aria-label*='email'], input[aria-label*='Mobile']")
+        if user_field.count() > 0 and user_field.first.is_visible():
+            print(f"🔑 Logging in as @{username}...")
+            user_field.first.fill(username)
+            time.sleep(1)
+            
+            pass_field = page.locator("input[name='password'], input[name='pass'], input[type='password']").first
+            pass_field.fill(password)
+            time.sleep(1)
+
+            print("⏳ Submitting login form...")
+            submit_btn = page.locator("button[type='submit'], button:has-text('Log in'), div[role='button']:has-text('Log in')").first
+            submit_btn.click(force=True)
+            time.sleep(8)
+
+        # Handle Verification Code if presented
+        code_input = page.locator("input[name='verificationCode'], input[placeholder='Code'], input[aria-label='Code'], input[type='text']").first
+        if "codeentry" in page.url or "challenge" in page.url or (code_input.count() > 0 and code_input.is_visible()):
+            print("\n" + "⚠️ "*15)
+            print("INSTAGRAM VERIFICATION CODE PROMPT DETECTED.")
+            print("Please enter the 6-digit code sent to your email directly in the Chrome window.")
+            print("Waiting up to 2 minutes for verification...")
+            print("⚠️ "*15 + "\n")
+
+            start_t = time.time()
+            while time.time() - start_t < 120:
+                if page.locator("svg[aria-label='New post'], svg[aria-label='New Post']").count() > 0 or "instagram.com/direct/" in page.url or page.locator("svg[aria-label='Home']").count() > 0:
+                    print("✅ Verification succeeded!")
+                    break
+                time.sleep(3)
 
         print("📸 Navigating Create menu...")
-        create_btn = page.locator("svg[aria-label='New post'], svg[aria-label='Create']").first
-        if create_btn.is_visible():
-            create_btn.click()
-            time.sleep(2)
+        for text in ["Not Now", "Not now", "Save Info", "Save info"]:
+            try:
+                btn = page.get_by_text(text, exact=True)
+                if btn.count() > 0 and btn.first.is_visible():
+                    print(f"Dismissing modal: {text}")
+                    btn.first.click(force=True)
+                    time.sleep(2)
+            except Exception:
+                pass
+
+        try:
+            create_icon = page.locator("svg[aria-label='New post'], svg[aria-label='New Post']").first
+            if create_icon.is_visible():
+                print("➕ Clicking '+' Create icon...")
+                create_icon.click(force=True)
+                time.sleep(2)
+        except Exception:
+            pass
+
+        try:
+            post_sub = page.get_by_text("Post", exact=True)
+            if post_sub.count() > 0 and post_sub.first.is_visible():
+                print("🖼️ Clicking 'Post' submenu option...")
+                post_sub.first.click(force=True)
+                time.sleep(3)
+        except Exception:
+            pass
 
         file_input = page.locator("input[type='file']")
-        if file_input.is_visible():
-            print(f"📁 Uploading image file: {img_path}")
-            file_input.set_input_files(img_path)
-            time.sleep(3)
+        if file_input.count() > 0:
+            print(f"📁 Uploading image file: {local_image_path}")
+            file_input.first.set_input_files(local_image_path)
+            time.sleep(4)
 
-        next_btn = page.locator("div[role='button']:has-text('Next'), button:has-text('Next')").first
-        if next_btn.is_visible():
-            print("➡️ Clicking Next...")
-            next_btn.click()
-            time.sleep(2)
-
-        next_btn2 = page.locator("div[role='button']:has-text('Next'), button:has-text('Next')").first
-        if next_btn2.is_visible():
-            print("➡️ Clicking Next...")
-            next_btn2.click()
-            time.sleep(2)
+        for step in range(2):
+            next_btn = page.locator("div[role='button']:has-text('Next'), button:has-text('Next')").first
+            if next_btn.is_visible():
+                print(f"➡️ Clicking Next ({step+1}/2)...")
+                next_btn.click(force=True)
+                time.sleep(3)
 
         caption_area = page.locator("div[aria-label='Write a caption...'], textarea[aria-label='Write a caption...']").first
         if caption_area.is_visible():
@@ -127,15 +173,15 @@ def post_account_2():
         share_btn = page.locator("div[role='button']:has-text('Share'), button:has-text('Share')").first
         if share_btn.is_visible():
             print("🚀 Clicking Share...")
-            share_btn.click()
-            time.sleep(8)
-            print(f"🎉 SUCCESS! Published Day {day_num} to @indian.traditions.1!")
+            share_btn.click(force=True)
+            time.sleep(12)
+            print(f"🎉 SUCCESS! Published Day {day_num} to @{username}!")
             update_current_day(day_num + 1)
             print(f"🔄 Day counter updated to Day {day_num + 1}.")
         else:
             print("Warning: Share button not found")
 
-        context.close()
+        browser.close()
 
 if __name__ == "__main__":
     post_account_2()

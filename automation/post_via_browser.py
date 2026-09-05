@@ -77,40 +77,25 @@ def post_via_playwright():
                 time.sleep(4)
                 break
             except Exception as e:
-                print(f"  Retry #{attempt+1} navigating to Instagram due to network glitch: {e}")
+                print(f"  Retry #{attempt+1} navigating to Instagram: {e}")
                 time.sleep(3)
 
-
-        # Fill Login Credentials using exact input attributes
-        user_field = page.locator("input[name='email'], input[name='username']")
-        if user_field.count() > 0 and user_field.first.is_visible():
+        # Fill Login Credentials if needed
+        user_field = page.locator("input[name='email'], input[name='username']").first
+        if user_field.count() > 0 and user_field.is_visible():
             print(f"🔑 Logging in as @{username}...")
-            user_field.first.fill(username)
+            user_field.fill(username)
             time.sleep(1)
             
             pass_field = page.locator("input[name='pass'], input[name='password']").first
             pass_field.fill(password)
             time.sleep(1)
 
-            # Submit form via Enter key press
             print("⏳ Submitting login form via Enter key...")
             pass_field.press("Enter")
             time.sleep(10)
 
-
-            # Wait up to 60 seconds for approval notification to be tapped on OnePlus 12 5G
-            print("⏳ Waiting for login approval notification on your OnePlus 12 5G (up to 60s)...")
-            for attempt in range(12):
-                time.sleep(5)
-                # Check if approval passed and navigation reached dashboard
-                if page.locator("svg[aria-label='New post'], svg[aria-label='New Post'], a[href='#']:has-text('Create')").count() > 0:
-                    print("✅ Login Approved! Instagram dashboard loaded.")
-                    break
-
-
-
         print("📸 Navigating Create menu...")
-        # Dismiss any modal blocking the UI ('Not Now' for notifications or save info)
         for text in ["Not Now", "Not now", "Save Info", "Save info"]:
             try:
                 btn = page.get_by_text(text, exact=True)
@@ -121,22 +106,20 @@ def post_via_playwright():
             except Exception:
                 pass
 
-        # Click '+' Create icon on left navigation sidebar
         try:
             create_icon = page.locator("svg[aria-label='New post'], svg[aria-label='New Post']").first
             if create_icon.is_visible():
                 print("➕ Clicking '+' Create icon...")
-                create_icon.click()
+                create_icon.click(force=True)
                 time.sleep(2)
         except Exception:
             pass
 
-        # Click 'Post' submenu item if present
         try:
             post_sub = page.get_by_text("Post", exact=True)
             if post_sub.count() > 0 and post_sub.first.is_visible():
                 print("🖼️ Clicking 'Post' submenu option...")
-                post_sub.first.click()
+                post_sub.first.click(force=True)
                 time.sleep(3)
         except Exception:
             pass
@@ -147,26 +130,26 @@ def post_via_playwright():
             file_input.first.set_input_files(local_image_path)
             time.sleep(4)
 
-            # Click 'Next' twice
+            # Click 'Next' twice with force=True
             for step in range(2):
-                next_btn = page.get_by_text("Next", exact=True)
+                next_btn = page.locator("div[role='button']:has-text('Next'), button:has-text('Next')").first
                 if next_btn.is_visible():
-                    print("➡️ Clicking Next...")
-                    next_btn.click()
+                    print(f"➡️ Clicking Next ({step+1}/2)...")
+                    next_btn.click(force=True)
                     time.sleep(3)
 
             # Write Caption
             print("✍️ Filling caption...")
-            caption_area = page.locator("div[aria-label='Write a caption...'], textarea[aria-label='Write a caption...']")
+            caption_area = page.locator("div[aria-label='Write a caption...'], textarea[aria-label='Write a caption...']").first
             if caption_area.is_visible():
                 caption_area.fill(full_caption)
                 time.sleep(2)
 
-            # Click Share
+            # Click Share with force=True
             print("🚀 Clicking Share...")
-            share_btn = page.get_by_text("Share", exact=True)
+            share_btn = page.locator("div[role='button']:has-text('Share'), button:has-text('Share')").first
             if share_btn.is_visible():
-                share_btn.click()
+                share_btn.click(force=True)
                 print("⏳ Publishing post to Instagram...")
                 time.sleep(12)
 
@@ -174,11 +157,11 @@ def post_via_playwright():
                 next_day = day_num + 1
                 update_current_day(next_day)
                 print(f"🔄 Day counter updated to Day {next_day}.\n")
+            else:
+                print("Warning: Share button not found")
         else:
             print("⚠️ Uploader modal did not open. Saving final screenshot...")
             page.screenshot(path=os.path.join(BASE_DIR, "final_status.png"))
-
-
 
         browser.close()
 
