@@ -1,0 +1,43 @@
+name: 🤖 365-Day Instagram Cloud Auto-Poster
+
+on:
+  schedule:
+    # Runs every day at 11:00 PM IST / 17:30 UTC (Peak Bedtime & US Afternoon Scroll)
+    - cron: '30 17 * * *'
+
+  workflow_dispatch: # Allows manual trigger from GitHub UI anytime
+
+jobs:
+  post_to_instagram:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 📥 Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: 🐍 Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: 📦 Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r automation/requirements.txt
+        pip install playwright
+        playwright install chromium
+
+    - name: 🚀 Run Daily Auto-Poster Bot
+      env:
+        INSTA_USERNAME: ${{ secrets.INSTA_USERNAME }}
+        INSTA_PASSWORD: ${{ secrets.INSTA_PASSWORD }}
+      run: |
+        python automation/post_via_browser.py
+
+    - name: 💾 Commit Updated Progress (current_day.txt)
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git add automation/current_day.txt automation/poster_log.txt
+        git commit -m "🤖 Auto-post progress updated to next day" || echo "No changes to commit"
+        git push

@@ -1,0 +1,62 @@
+[
+  {
+    "niche": "Mindset",
+    "handle": "@the_logical_minds.1",
+    "account_id": "ACCOUNT_1_ID",
+    "theme": "mindset"
+  },
+  {
+    "niche": "Food",
+    "handle": "@culinary_wisdom_365",
+    "account_id": "ACCOUNT_2_ID",
+    "theme": "food"
+  },
+  {
+    "niche": "Cinema",
+    "handle": "@cinema_truths_365",
+    "account_id": "ACCOUNT_3_ID",
+    "theme": "cinema"
+  },
+  {
+    "niche": "Music",
+    "handle": "@music_mindset_365",
+    "account_id": "ACCOUNT_4_ID",
+    "theme": "music"
+  },
+  {
+    "niche": "Wealth",
+    "handle": "@wealth_leverage_365",
+    "account_id": "ACCOUNT_5_ID",
+    "theme": "wealth"
+  },
+  {
+    "niche": "Fitness",
+    "handle": "@discipline_power_365",
+    "account_id": "ACCOUNT_6_ID",
+    "theme": "fitness"
+  },
+  {
+    "niche": "Tech",
+    "handle": "@tech_systems_365",
+    "account_id": "ACCOUNT_7_ID",
+    "theme": "tech"
+  },
+  {
+    "niche": "Books",
+    "handle": "@philosophy_books_365",
+    "account_id": "ACCOUNT_8_ID",
+    "theme": "books"
+  },
+  {
+    "niche": "Peace",
+    "handle": "@peace_clarity_365",
+    "account_id": "ACCOUNT_9_ID",
+    "theme": "peace"
+  },
+  {
+    "niche": "Productivity",
+    "handle": "@focus_productivity_365",
+    "account_id": "ACCOUNT_10_ID",
+    "theme": "productivity"
+  }
+]

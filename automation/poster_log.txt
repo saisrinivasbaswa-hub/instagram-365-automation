@@ -1,0 +1,52 @@
+[05-09-2026 14:28:34.61] Running Instagram Daily Poster... 
+==========================================
+📅 Browser Auto-Poster: DAY 3 / 365
+💡 Topic: Boundaries
+💬 Quote: Saying no to others is saying yes to your own growth.
+==========================================
+🌐 Opening Instagram login page...
+Traceback (most recent call last):
+  File "C:\Users\baswa\Documents\antigravity\friendly-heisenberg\automation\post_via_browser.py", line 179, in <module>
+    post_via_playwright()
+  File "C:\Users\baswa\Documents\antigravity\friendly-heisenberg\automation\post_via_browser.py", line 74, in post_via_playwright
+    page.goto("https://www.instagram.com/accounts/login/", wait_until="networkidle")
+  File "C:\Users\baswa\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\sync_api\_generated.py", line 9875, in goto
+    self._sync(
+  File "C:\Users\baswa\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\_impl\_sync_base.py", line 115, in _sync
+    return task.result()
+           ^^^^^^^^^^^^^
+  File "C:\Users\baswa\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\_impl\_page.py", line 560, in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\baswa\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\_impl\_frame.py", line 156, in goto
+    await self._channel.send(
+  File "C:\Users\baswa\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\_impl\_connection.py", line 76, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\baswa\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\_impl\_connection.py", line 632, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.Error: Page.goto: net::ERR_NETWORK_CHANGED at https://www.instagram.com/accounts/login/
+Call log:
+  - navigating to "https://www.instagram.com/accounts/login/", waiting until "networkidle"
+
+[05-09-2026 14:28:45.07] Completed execution. 
+[05-09-2026 14:29:23.36] Running Instagram Daily Poster... 
+==========================================
+📅 Browser Auto-Poster: DAY 3 / 365
+💡 Topic: Boundaries
+💬 Quote: Saying no to others is saying yes to your own growth.
+==========================================
+🌐 Navigating to Instagram...
+📸 Navigating Create menu...
+➕ Clicking '+' Create icon...
+🖼️ Clicking 'Post' submenu option...
+📁 Uploading image file: C:\Users\baswa\Documents\antigravity\friendly-heisenberg\automation\images\day_003.png
+➡️ Clicking Next...
+➡️ Clicking Next...
+✍️ Filling caption...
+🚀 Clicking Share...
+⏳ Publishing post to Instagram...
+🎉 SUCCESS! Published Day 3 successfully to Instagram!
+🔄 Day counter updated to Day 4.
+
+[05-09-2026 14:30:00.14] Completed execution. 

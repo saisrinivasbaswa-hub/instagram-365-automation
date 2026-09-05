@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minimalist 365-Day Instagram Quote Studio & Automation</title>
+  <meta name="description" content="Generate crisp, logical minimalist Instagram quotes and auto-publish for 365 days. Inspired by Samya Raine and Naval Ravikant.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="brand">
+      <div class="brand-icon">⚡</div>
+      <div>
+        <div class="brand-title">Logical Quotes 365</div>
+        <div class="brand-subtitle">Automated Instagram Growth Suite</div>
+      </div>
+    </div>
+
+    <div class="nav-controls">
+      <div class="handle-input-wrapper">
+        <label for="brandHandle">Handle:</label>
+        <input type="text" id="brandHandle" class="handle-input" value="@the_logical_minds.1" placeholder="@the_logical_minds.1">
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-container">
+    
+    <!-- Left Column: Canvas Studio Preview & Download -->
+    <section class="preview-card">
+      <div class="card-header">
+        <h2 class="card-title">
+          <span>🎨 Post Studio</span>
+        </h2>
+        <span class="day-badge" id="currentDayBadge">Day 1 / 365</span>
+      </div>
+
+      <!-- Canvas Box -->
+      <div class="canvas-wrapper">
+        <canvas id="quoteCanvas"></canvas>
+      </div>
+
+      <!-- 10 Niche Theme Toolbar -->
+      <div class="style-toolbar" style="flex-wrap: wrap; gap: 0.4rem; justify-content: center;">
+        <button class="style-btn active" data-theme="mindset">🧠 Mindset</button>
+        <button class="style-btn" data-theme="food">🌿 Food</button>
+        <button class="style-btn" data-theme="cinema">🎬 Cinema</button>
+        <button class="style-btn" data-theme="music">🎧 Music</button>
+        <button class="style-btn" data-theme="wealth">💎 Wealth</button>
+        <button class="style-btn" data-theme="fitness">⚡ Fitness</button>
+        <button class="style-btn" data-theme="tech">🤖 Tech</button>
+        <button class="style-btn" data-theme="books">📖 Books</button>
+        <button class="style-btn" data-theme="peace">🕊️ Peace</button>
+        <button class="style-btn" data-theme="productivity">🎯 Focus</button>
+      </div>
+
+
+      <!-- Action Buttons -->
+      <div class="action-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+        <button class="btn-primary" id="btnDownload">
+          <span>📥 Download PNG</span>
+        </button>
+        <button class="btn-secondary" id="btnCopyCaption">
+          <span>📋 Copy Caption</span>
+        </button>
+        <button class="btn-secondary" id="btnPlayMusic">
+          <span id="musicBtnLabel">🎵 Play Music</span>
+        </button>
+      </div>
+      <audio id="bgMusic" src="automation/music/simple_mindset_music.wav" loop></audio>
+
+    </section>
+
+    <!-- Right Column: 365-Day Quote Explorer & Details -->
+    <section class="explorer-card">
+      
+      <!-- Top Filters Bar -->
+      <div class="explorer-header">
+        <div class="search-bar">
+          <span>🔍</span>
+          <input type="text" id="searchInput" placeholder="Search quotes, topics (e.g. Focus, Peace)...">
+        </div>
+
+        <div class="category-tags" id="categoryTags">
+          <button class="tag-btn active" data-cat="all">All</button>
+          <button class="tag-btn" data-cat="Focus">Focus</button>
+          <button class="tag-btn" data-cat="Peace">Peace</button>
+          <button class="tag-btn" data-cat="Mindset">Mindset</button>
+          <button class="tag-btn" data-cat="Wealth">Wealth</button>
+          <button class="tag-btn" data-cat="Discipline">Discipline</button>
+        </div>
+      </div>
+
+      <!-- Day Slider Strip -->
+      <div class="selector-strip">
+        <label style="font-size:0.85rem; color: var(--text-muted);">Jump to Day:</label>
+        <input type="range" id="daySlider" class="day-slider" min="1" max="365" value="1">
+        <div class="slider-val" id="sliderVal">Day 1</div>
+      </div>
+
+      <!-- Selected Quote Caption Box -->
+      <div class="caption-box">
+        <div class="caption-title">
+          <span>INSTAGRAM CAPTION PREVIEW</span>
+          <span id="copyToast" style="color:var(--secondary); font-size:0.75rem; display:none;">Copied to clipboard!</span>
+        </div>
+        <div class="caption-text" id="captionText">Loading caption...</div>
+        <div class="hashtags-text" id="hashtagsText">#mindset #quotes #focus</div>
+      </div>
+
+      <!-- Quotes List Grid -->
+      <h3 style="font-size:0.95rem; color: var(--text-muted); margin-top:0.5rem;">Select Day (1 - 365):</h3>
+      <div class="quotes-grid" id="quotesGrid">
+        <!-- Dynamically rendered quotes cards -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Automation Setup Banner Footer -->
+  <div style="max-width: 1400px; margin: 0 auto; padding: 0 1.5rem;">
+    <div class="automation-banner">
+      <div class="banner-info">
+        <h4>🤖 Hands-Free 365-Day Python Auto-Poster Bot</h4>
+        <p>Run <code>python automation/generate_all_images.py</code> to render all 365 post images locally, then run <code>python automation/auto_poster.py</code> to post every day automatically!</p>
+      </div>
+      <button class="btn-secondary" onclick="alert('Step-by-step setup guide is located at: automation/README.md in your project directory!')">
+        <span>📖 View Setup Guide</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/quotes365.js"></script>
+  <script src="js/canvasStudio.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
