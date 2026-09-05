@@ -2,7 +2,7 @@ name: 🤖 365-Day Instagram Cloud Auto-Poster
 
 on:
   schedule:
-    # Runs every day at 11:00 PM IST / 17:30 UTC (Peak Bedtime & US Afternoon Scroll)
+    # Runs every day at 11:00 PM IST / 17:30 UTC
     - cron: '30 17 * * *'
 
   workflow_dispatch: # Allows manual trigger from GitHub UI anytime
@@ -24,7 +24,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r automation/requirements.txt
-        pip install playwright
+        pip install instagrapi playwright
         playwright install chromium
 
     - name: 🚀 Run Daily Auto-Poster Bot
@@ -32,7 +32,7 @@ jobs:
         INSTA_USERNAME: ${{ secrets.INSTA_USERNAME }}
         INSTA_PASSWORD: ${{ secrets.INSTA_PASSWORD }}
       run: |
-        python automation/post_via_browser.py
+        python automation/auto_poster_direct.py || python automation/post_via_browser.py
 
     - name: 💾 Commit Updated Progress (current_day.txt)
       run: |

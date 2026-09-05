@@ -14,16 +14,16 @@ IMAGES_DIR = os.path.join(BASE_DIR, "images")
 ENV_FILE = os.path.join(BASE_DIR, ".env")
 
 def get_credentials():
-    username = ""
-    password = ""
-    if os.path.exists(ENV_FILE):
+    username = os.getenv("INSTA_USERNAME", "")
+    password = os.getenv("INSTA_PASSWORD", "")
+    if not username and os.path.exists(ENV_FILE):
         with open(ENV_FILE, "r") as f:
             for line in f:
                 if "=" in line:
                     k, v = line.strip().split("=", 1)
-                    if k == "INSTA_USERNAME":
+                    if k == "INSTA_USERNAME" and not username:
                         username = v.strip()
-                    elif k == "INSTA_PASSWORD":
+                    elif k == "INSTA_PASSWORD" and not password:
                         password = v.strip()
     return username, password
 
