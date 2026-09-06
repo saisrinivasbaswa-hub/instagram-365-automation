@@ -32,12 +32,12 @@ jobs:
         INSTA_USERNAME: ${{ secrets.INSTA_USERNAME }}
         INSTA_PASSWORD: ${{ secrets.INSTA_PASSWORD }}
       run: |
-        python automation/auto_poster_direct.py || python automation/post_via_browser.py
+        python automation/post_via_browser.py
 
-    - name: 💾 Commit Updated Progress (current_day.txt)
+    - name: 💾 Commit Updated Progress (current_day.txt & session)
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git add automation/current_day.txt automation/poster_log.txt
+        git add automation/current_day.txt automation/session_acc1.json automation/poster_log.txt
         git commit -m "🤖 Auto-post progress updated to next day" || echo "No changes to commit"
         git push

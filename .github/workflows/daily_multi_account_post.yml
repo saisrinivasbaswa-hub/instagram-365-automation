@@ -45,6 +45,6 @@ jobs:
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git add automation/current_day.txt automation/current_day_indian.txt automation/poster_log.txt
+        git add automation/current_day.txt automation/current_day_indian.txt automation/session_acc1.json automation/poster_log.txt
         git commit -m "🤖 Auto-post progress updated for all accounts" || echo "No changes to commit"
         git push
