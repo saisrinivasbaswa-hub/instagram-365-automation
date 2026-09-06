@@ -62,13 +62,30 @@ def post_via_playwright():
     full_caption = f"{post_item['caption']}\n\n{post_item['hashtags']}"
 
     user_data_dir = os.path.join(BASE_DIR, "browser_session")
+    state_file = os.path.join(BASE_DIR, "session_acc1.json")
+
     with sync_playwright() as p:
-        browser = p.chromium.launch_persistent_context(
-            user_data_dir,
-            headless=False,
-            viewport={"width": 1280, "height": 800}
-        )
-        page = browser.new_page()
+        if os.path.exists(user_data_dir):
+            print("🖥️ Using local persistent browser profile...")
+            browser = p.chromium.launch_persistent_context(
+                user_data_dir,
+                headless=False,
+                viewport={"width": 1280, "height": 800}
+            )
+            page = browser.new_page()
+        elif os.path.exists(state_file):
+            print("☁️ Using cloud storage state (session_acc1.json)...")
+            headless_browser = p.chromium.launch(headless=True)
+            context = headless_browser.new_context(
+                storage_state=state_file,
+                viewport={"width": 1280, "height": 800}
+            )
+            page = context.new_page()
+        else:
+            print("⚠️ No persistent profile or session state found. Launching fresh headless context...")
+            headless_browser = p.chromium.launch(headless=True)
+            context = headless_browser.new_context(viewport={"width": 1280, "height": 800})
+            page = context.new_page()
 
         print("🌐 Navigating to Instagram...")
         for attempt in range(3):
@@ -101,7 +118,7 @@ def post_via_playwright():
                 btn = page.get_by_text(text, exact=True)
                 if btn.count() > 0 and btn.first.is_visible():
                     print(f"Dismissing modal: {text}")
-                    btn.first.click()
+                    btn.first.click(force=True)
                     time.sleep(2)
             except Exception:
                 pass
@@ -130,7 +147,6 @@ def post_via_playwright():
             file_input.first.set_input_files(local_image_path)
             time.sleep(4)
 
-            # Click 'Next' twice with force=True
             for step in range(2):
                 next_btn = page.locator("div[role='button']:has-text('Next'), button:has-text('Next')").first
                 if next_btn.is_visible():
@@ -138,14 +154,12 @@ def post_via_playwright():
                     next_btn.click(force=True)
                     time.sleep(3)
 
-            # Write Caption
             print("✍️ Filling caption...")
             caption_area = page.locator("div[aria-label='Write a caption...'], textarea[aria-label='Write a caption...']").first
             if caption_area.is_visible():
                 caption_area.fill(full_caption)
                 time.sleep(2)
 
-            # Click Share with force=True
             print("🚀 Clicking Share...")
             share_btn = page.locator("div[role='button']:has-text('Share'), button:has-text('Share')").first
             if share_btn.is_visible():
@@ -162,6 +176,11 @@ def post_via_playwright():
         else:
             print("⚠️ Uploader modal did not open. Saving final screenshot...")
             page.screenshot(path=os.path.join(BASE_DIR, "final_status.png"))
+
+        # Save updated state
+        if os.path.exists(user_data_dir):
+            browser.storage_state(path=state_file)
+            print(f"💾 Storage state refreshed in {state_file}")
 
         browser.close()
 
