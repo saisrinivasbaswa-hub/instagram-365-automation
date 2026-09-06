@@ -88,7 +88,15 @@ def post_account_2():
 
     is_cloud = os.getenv("RENDER") is not None or os.getenv("CI") is not None
 
+    if is_cloud:
+        try:
+            print("🌐 Ensuring Playwright Chromium browser is installed...")
+            subprocess.run([sys.executable, "-m", "playwright", "install", "chromium"], check=False)
+        except Exception as e:
+            print(f"Browser check warning: {e}")
+
     with sync_playwright() as p:
+
         if not is_cloud and os.path.exists(user_data_dir):
             print("🖥️ Using local persistent profile browser_session_acc2...")
             browser = p.chromium.launch_persistent_context(
