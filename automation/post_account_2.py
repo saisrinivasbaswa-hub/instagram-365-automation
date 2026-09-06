@@ -86,8 +86,10 @@ def post_account_2():
     user_data_dir = os.path.join(BASE_DIR, "browser_session_acc2")
     state_file = os.path.join(BASE_DIR, "session_acc2.json")
 
+    is_cloud = os.getenv("RENDER") is not None or os.getenv("CI") is not None
+
     with sync_playwright() as p:
-        if os.path.exists(user_data_dir):
+        if not is_cloud and os.path.exists(user_data_dir):
             print("🖥️ Using local persistent profile browser_session_acc2...")
             browser = p.chromium.launch_persistent_context(
                 user_data_dir,
@@ -103,11 +105,20 @@ def post_account_2():
                 viewport={"width": 1280, "height": 800}
             )
             page = context.new_page()
+        elif os.path.exists(user_data_dir):
+            print("☁️ Using persistent profile in headless mode on cloud...")
+            browser = p.chromium.launch_persistent_context(
+                user_data_dir,
+                headless=True,
+                viewport={"width": 1280, "height": 800}
+            )
+            page = browser.new_page()
         else:
             print("⚠️ Launching fresh context...")
             headless_browser = p.chromium.launch(headless=True)
             context = headless_browser.new_context(viewport={"width": 1280, "height": 800})
             page = context.new_page()
+
 
         print("🌐 Navigating to Instagram...")
         for attempt in range(3):

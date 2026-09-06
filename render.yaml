@@ -3,9 +3,10 @@ services:
     name: instagram-365-poster-web
     runtime: python
     plan: free
-    buildCommand: "pip install -r automation/requirements.txt && playwright install chromium"
+    buildCommand: "./automation/render_build.sh"
     startCommand: "gunicorn automation.app:app"
     envVars:
       - key: PORT
         value: 10000
+
 
