@@ -68,20 +68,17 @@ def post_account_2():
     img_name = f"day_{day_num:03d}.png"
     local_image_path = os.path.abspath(os.path.join(IMAGES_DIR, img_name))
 
-    # If static PNG image is missing, attempt to generate it on the fly
     if not os.path.exists(local_image_path):
         print(f"Image {local_image_path} missing. Generating on the fly...")
         try:
-            from PIL import Image, ImageDraw, ImageFont
+            from PIL import Image, ImageDraw
             os.makedirs(IMAGES_DIR, exist_ok=True)
             img = Image.new('RGB', (1080, 1080), color=(15, 12, 28))
             draw = ImageDraw.Draw(img)
-            # Decorative border
             draw.rectangle([30, 30, 1050, 1050], outline=(245, 158, 11), width=4)
             draw.text((540, 200), "🇮🇳 INDIAN TRADITIONS", fill=(245, 158, 11), anchor="mm")
             draw.text((540, 540), post_item['quote'], fill=(255, 255, 255), anchor="mm")
             img.save(local_image_path)
-            print(f"Generated {local_image_path}")
         except Exception as e:
             print(f"Image generation error: {e}")
 
@@ -122,7 +119,6 @@ def post_account_2():
                 print(f"  Retry #{attempt+1} navigating to Instagram: {e}")
                 time.sleep(3)
 
-        # Check if login form is present
         user_field = page.locator("input[name='username'], input[name='email'], input[aria-label*='username'], input[aria-label*='email'], input[aria-label*='Mobile']").first
         if user_field.count() > 0 and user_field.is_visible():
             print(f"🔑 Logging in as @{username}...")
@@ -186,7 +182,9 @@ def post_account_2():
                 caption_area.fill(full_caption)
                 time.sleep(2)
 
-            share_btn = page.locator("div[role='button']:has-text('Share'), button:has-text('Share')").first
+            print("🚀 Target exact modal header Share button...")
+            dialog = page.locator("div[role='dialog']")
+            share_btn = dialog.locator("header div[role='button']:has-text('Share'), header button:has-text('Share'), div[role='button']:has-text('Share')").last
             if share_btn.is_visible():
                 print("🚀 Clicking Share...")
                 share_btn.click(force=True)
@@ -195,11 +193,10 @@ def post_account_2():
                 update_current_day(day_num + 1)
                 print(f"🔄 Counter updated to Post #{day_num + 1}.")
             else:
-                print("Warning: Share button not found")
+                print("Warning: Share button not found in modal header")
         else:
             print("⚠️ Upload modal not found.")
 
-        # Save updated state
         if os.path.exists(user_data_dir):
             browser.storage_state(path=state_file)
             print(f"💾 Storage state refreshed in {state_file}")

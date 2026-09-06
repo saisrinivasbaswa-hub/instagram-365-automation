@@ -97,7 +97,6 @@ def post_via_playwright():
                 print(f"  Retry #{attempt+1} navigating to Instagram: {e}")
                 time.sleep(3)
 
-        # Fill Login Credentials if needed
         user_field = page.locator("input[name='email'], input[name='username']").first
         if user_field.count() > 0 and user_field.is_visible():
             print(f"🔑 Logging in as @{username}...")
@@ -160,8 +159,9 @@ def post_via_playwright():
                 caption_area.fill(full_caption)
                 time.sleep(2)
 
-            print("🚀 Clicking Share...")
-            share_btn = page.locator("div[role='button']:has-text('Share'), button:has-text('Share')").first
+            print("🚀 Target exact modal header Share button...")
+            dialog = page.locator("div[role='dialog']")
+            share_btn = dialog.locator("header div[role='button']:has-text('Share'), header button:has-text('Share'), div[role='button']:has-text('Share')").last
             if share_btn.is_visible():
                 share_btn.click(force=True)
                 print("⏳ Publishing post to Instagram...")
@@ -177,7 +177,6 @@ def post_via_playwright():
             print("⚠️ Uploader modal did not open. Saving final screenshot...")
             page.screenshot(path=os.path.join(BASE_DIR, "final_status.png"))
 
-        # Save updated state
         if os.path.exists(user_data_dir):
             browser.storage_state(path=state_file)
             print(f"💾 Storage state refreshed in {state_file}")
