@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuantIndia | Indian Stock Market Trading & Research Platform</title>
+  <meta name="description" content="Automated quantitative research, stock scanner, backtester, paper trader, and risk management system for NSE/BSE stocks.">
+  
+  <!-- Google Fonts & Chart.js -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Top Navigation Bar -->
+    <header class="navbar">
+      <div class="brand">
+        <div class="logo-icon">📊</div>
+        <div class="brand-text">
+          <h1>Quant<span class="highlight">India</span></h1>
+          <p class="tagline">NSE Quantitative Research & Risk Engine</p>
+        </div>
+      </div>
+
+      <div class="market-ticker-banner" id="marketBanner">
+        <span class="ticker-label">NIFTY 50:</span>
+        <span class="ticker-price" id="niftyPrice">Loading...</span>
+        <span class="ticker-badge" id="niftyBadge">--</span>
+      </div>
+
+      <div class="circuit-breaker-widget" id="circuitWidget">
+        <span class="status-dot green" id="statusDot"></span>
+        <span class="status-text" id="statusText">Risk Engine Active</span>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs">
+      <button class="tab-btn active" data-tab="scanner-tab">
+        <span class="icon">🔍</span> Market Scanner & Signals
+      </button>
+      <button class="tab-btn" data-tab="portfolio-tab">
+        <span class="icon">💼</span> Paper Trading Portfolio
+      </button>
+      <button class="tab-btn" data-tab="backtest-tab">
+        <span class="icon">📈</span> Strategy Backtester
+      </button>
+    </nav>
+
+    <!-- Main Content Body -->
+    <main class="content-body">
+      <!-- TAB 1: MARKET SCANNER & SIGNALS -->
+      <section id="scanner-tab" class="tab-pane active">
+        <div class="section-header">
+          <div>
+            <h2>NSE Top Stock Scanner</h2>
+            <p>Real-time quantitative scoring based on EMA trend, RSI momentum, ATR volatility & Supertrend.</p>
+          </div>
+          <button class="btn primary" id="btnRefreshScanner">
+            <span>🔄</span> Scan Market Universe
+          </button>
+        </div>
+
+        <!-- Scanner Filters -->
+        <div class="filter-bar">
+          <button class="filter-chip active" data-filter="ALL">All Stocks</button>
+          <button class="filter-chip" data-filter="BUY">Buy Signals Only</button>
+          <button class="filter-chip" data-filter="STRONG BUY">Strong Buy Only</button>
+          <button class="filter-chip" data-filter="HOLD">Neutral / Hold</button>
+        </div>
+
+        <!-- Scanner Signals Grid / Table -->
+        <div class="glass-card table-card">
+          <div class="table-responsive">
+            <table class="quant-table" id="scannerTable">
+              <thead>
+                <tr>
+                  <th>Stock Name</th>
+                  <th>LTP (₹)</th>
+                  <th>24h Change</th>
+                  <th>Quant Score</th>
+                  <th>Signal</th>
+                  <th>RSI (14)</th>
+                  <th>Vol Surge</th>
+                  <th>Entry / Stop / Target (₹)</th>
+                  <th>R:R Ratio</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="scannerTableBody">
+                <tr><td colspan="10" class="loading-cell">Scanning NSE stocks...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: PAPER TRADING PORTFOLIO -->
+      <section id="portfolio-tab" class="tab-pane">
+        <!-- Metric Cards Grid -->
+        <div class="metrics-grid">
+          <div class="glass-card metric-card">
+            <span class="metric-title">Total Equity</span>
+            <div class="metric-value" id="valTotalEquity">₹1,00,000.00</div>
+            <span class="metric-sub" id="valTotalPnlPct">+0.00% Overall</span>
+          </div>
+
+          <div class="glass-card metric-card">
+            <span class="metric-title">Cash Balance</span>
+            <div class="metric-value" id="valCashBalance">₹1,00,000.00</div>
+            <span class="metric-sub">Available Virtual Funds</span>
+          </div>
+
+          <div class="glass-card metric-card">
+            <span class="metric-title">Realized PnL</span>
+            <div class="metric-value" id="valRealizedPnl">₹0.00</div>
+            <span class="metric-sub" id="valWinRate">Win Rate: 0%</span>
+          </div>
+
+          <div class="glass-card metric-card highlight-card">
+            <span class="metric-title">Daily Circuit Breaker</span>
+            <div class="metric-value" id="valCircuitLimit">1.0% Max Loss</div>
+            <span class="metric-sub" id="valCircuitReason">Safety Limit Active</span>
+          </div>
+        </div>
+
+        <!-- Active Holdings & History -->
+        <div class="grid-2col">
+          <div class="glass-card">
+            <h3>Active Holdings (<span id="activeCount">0</span>/5)</h3>
+            <div class="table-responsive">
+              <table class="quant-table">
+                <thead>
+                  <tr>
+                    <th>Ticker</th>
+                    <th>Shares</th>
+                    <th>Entry (₹)</th>
+                    <th>LTP (₹)</th>
+                    <th>Target / Stop (₹)</th>
+                    <th>Unrealized PnL</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="holdingsTableBody">
+                  <tr><td colspan="7" class="loading-cell">No open positions. Use the Scanner tab to execute trades.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="glass-card">
+            <h3>Trade History Ledger</h3>
+            <div class="table-responsive">
+              <table class="quant-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Ticker</th>
+                    <th>Type</th>
+                    <th>Price (₹)</th>
+                    <th>Realized PnL</th>
+                    <th>Timestamp</th>
+                  </tr>
+                </thead>
+                <tbody id="historyTableBody">
+                  <tr><td colspan="6" class="loading-cell">No past trades executed yet.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: STRATEGY BACKTESTER -->
+      <section id="backtest-tab" class="tab-pane">
+        <div class="section-header">
+          <div>
+            <h2>Quantitative Strategy Backtester</h2>
+            <p>Evaluate strategy performance on historical NSE candle data over 1 to 2 years.</p>
+          </div>
+        </div>
+
+        <div class="backtest-controls glass-card">
+          <div class="control-group">
+            <label for="backtestTicker">Select NSE Stock:</label>
+            <select id="backtestTicker" class="form-select">
+              <option value="RELIANCE.NS">Reliance Industries (RELIANCE.NS)</option>
+              <option value="TCS.NS">TCS (TCS.NS)</option>
+              <option value="HDFCBANK.NS">HDFC Bank (HDFCBANK.NS)</option>
+              <option value="INFY.NS">Infosys (INFY.NS)</option>
+              <option value="TATAMOTORS.NS">Tata Motors (TATAMOTORS.NS)</option>
+              <option value="SBIN.NS">State Bank of India (SBIN.NS)</option>
+              <option value="ICICIBANK.NS">ICICI Bank (ICICIBANK.NS)</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label for="backtestPeriod">Time Period:</label>
+            <select id="backtestPeriod" class="form-select">
+              <option value="1y">1 Year Historical</option>
+              <option value="2y">2 Years Historical</option>
+              <option value="6m">6 Months Historical</option>
+            </select>
+          </div>
+
+          <button class="btn primary" id="btnRunBacktest">
+            <span>🚀</span> Run Backtest
+          </button>
+        </div>
+
+        <!-- Backtest Results Display -->
+        <div id="backtestResults" class="backtest-results-container hidden">
+          <div class="metrics-grid">
+            <div class="glass-card metric-card">
+              <span class="metric-title">Strategy Return</span>
+              <div class="metric-value green-text" id="btStrategyReturn">+0.00%</div>
+              <span class="metric-sub" id="btBenchmarkReturn">Vs Benchmark: +0.00%</span>
+            </div>
+
+            <div class="glass-card metric-card">
+              <span class="metric-title">Win Rate</span>
+              <div class="metric-value" id="btWinRate">0.0%</div>
+              <span class="metric-sub" id="btTradeCounts">0 Trades (0 Wins / 0 Losses)</span>
+            </div>
+
+            <div class="glass-card metric-card">
+              <span class="metric-title">Profit Factor</span>
+              <div class="metric-value" id="btProfitFactor">0.00</div>
+              <span class="metric-sub">Gross Win / Gross Loss</span>
+            </div>
+
+            <div class="glass-card metric-card">
+              <span class="metric-title">Max Drawdown</span>
+              <div class="metric-value red-text" id="btMaxDrawdown">0.00%</div>
+              <span class="metric-sub">Peak-to-Trough Decline</span>
+            </div>
+          </div>
+
+          <!-- Backtest Chart -->
+          <div class="glass-card chart-card">
+            <h3>Equity Curve Simulation (Capital vs Buy & Hold)</h3>
+            <div class="chart-container">
+              <canvas id="backtestChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
