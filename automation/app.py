@@ -6,8 +6,10 @@ from flask import Flask, jsonify, request
 if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8')
 
+os.environ["PLAYWRIGHT_BROWSERS_PATH"] = "0"
 app = Flask(__name__)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 
 def run_script(script_name):
     script_path = os.path.join(BASE_DIR, script_name)

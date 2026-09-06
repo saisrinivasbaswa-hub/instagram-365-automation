@@ -8,5 +8,8 @@ services:
     envVars:
       - key: PORT
         value: 10000
+      - key: PLAYWRIGHT_BROWSERS_PATH
+        value: "0"
+
 
 
