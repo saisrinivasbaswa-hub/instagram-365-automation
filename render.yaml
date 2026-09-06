@@ -1,0 +1,12 @@
+services:
+  - type: cron
+    name: instagram-hourly-poster
+    runtime: python
+    buildCommand: "pip install -r automation/requirements.txt && pip install playwright instagrapi Pillow && playwright install chromium"
+    schedule: "17 * * * *"
+    startCommand: "python automation/post_account_2.py"
+    envVars:
+      - key: INSTA_USERNAME_2
+        sync: false
+      - key: INSTA_PASSWORD_2
+        sync: false
