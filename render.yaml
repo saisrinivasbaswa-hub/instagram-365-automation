@@ -1,14 +1,11 @@
 services:
-  - type: cron
-    name: instagram-hourly-poster
+  - type: web
+    name: instagram-365-poster-web
     runtime: python
     plan: free
-    buildCommand: "pip install -r automation/requirements.txt && pip install playwright instagrapi Pillow && playwright install chromium"
-    schedule: "17 * * * *"
-    startCommand: "python automation/post_account_2.py"
+    buildCommand: "pip install -r automation/requirements.txt && playwright install chromium"
+    startCommand: "gunicorn automation.app:app"
     envVars:
-      - key: INSTA_USERNAME_2
-        sync: false
-      - key: INSTA_PASSWORD_2
-        sync: false
+      - key: PORT
+        value: 10000
 
