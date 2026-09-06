@@ -1,0 +1,50 @@
+name: 🤖 1-Hour Multi-Account Instagram Cloud Poster (24 Posts/Day)
+
+on:
+  schedule:
+    # Runs every 1 hour at minute 0
+    - cron: '0 * * * *'
+
+  workflow_dispatch: # Allows manual trigger from GitHub UI anytime
+
+jobs:
+  post_hourly:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 📥 Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: 🐍 Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: 📦 Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r automation/requirements.txt
+        pip install playwright instagrapi Pillow
+        playwright install chromium
+
+    - name: 🚀 Publish Account 1 (@the_logical_minds.1)
+      env:
+        INSTA_USERNAME: ${{ secrets.INSTA_USERNAME }}
+        INSTA_PASSWORD: ${{ secrets.INSTA_PASSWORD }}
+      run: |
+        python automation/post_via_browser.py || echo "Account 1 completed"
+
+    - name: 🚀 Publish Account 2 (@indian.traditions.1)
+      env:
+        INSTA_USERNAME_2: ${{ secrets.INSTA_USERNAME_2 }}
+        INSTA_PASSWORD_2: ${{ secrets.INSTA_PASSWORD_2 }}
+      run: |
+        python automation/post_account_2.py || echo "Account 2 completed"
+
+    - name: 💾 Commit & Push Storage States & Day Counters
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git add automation/current_day.txt automation/current_day_indian.txt automation/session_acc1.json automation/session_acc2.json automation/poster_log.txt
+        git commit -m "🤖 Hourly auto-post progress updated for all accounts" || echo "No changes to commit"
+        git push

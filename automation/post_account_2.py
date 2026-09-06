@@ -8,7 +8,10 @@ if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8')
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-POSTS_JSON = os.path.join(BASE_DIR, "indian_calendar_365.json")
+POSTS_JSON = os.path.join(BASE_DIR, "indian_calendar_720.json")
+if not os.path.exists(POSTS_JSON):
+    POSTS_JSON = os.path.join(BASE_DIR, "indian_calendar_365.json")
+
 TRACKER_FILE = os.path.join(BASE_DIR, "current_day_indian.txt")
 IMAGES_DIR = os.path.join(BASE_DIR, "images_indian")
 ENV_FILE = os.path.join(BASE_DIR, ".env")
@@ -57,28 +60,57 @@ def post_account_2():
         return
 
     print(f"==========================================")
-    print(f"🇮🇳 Account 2 (@{username}) - DAY {day_num} / 365 POSTING")
-    print(f"✨ Category: {post_item.get('category_tag', post_item['category'])}")
+    print(f"🇮🇳 Account 2 (@{username}) - POST #{day_num}")
+    print(f"✨ Category: {post_item.get('category_tag', post_item.get('category', 'Culture'))}")
     print(f"💬 Quote: {post_item['quote']}")
     print(f"==========================================")
 
     img_name = f"day_{day_num:03d}.png"
     local_image_path = os.path.abspath(os.path.join(IMAGES_DIR, img_name))
 
+    # If static PNG image is missing, attempt to generate it on the fly
     if not os.path.exists(local_image_path):
-        print(f"Error: Image file {local_image_path} not found!")
-        return
+        print(f"Image {local_image_path} missing. Generating on the fly...")
+        try:
+            from PIL import Image, ImageDraw, ImageFont
+            os.makedirs(IMAGES_DIR, exist_ok=True)
+            img = Image.new('RGB', (1080, 1080), color=(15, 12, 28))
+            draw = ImageDraw.Draw(img)
+            # Decorative border
+            draw.rectangle([30, 30, 1050, 1050], outline=(245, 158, 11), width=4)
+            draw.text((540, 200), "🇮🇳 INDIAN TRADITIONS", fill=(245, 158, 11), anchor="mm")
+            draw.text((540, 540), post_item['quote'], fill=(255, 255, 255), anchor="mm")
+            img.save(local_image_path)
+            print(f"Generated {local_image_path}")
+        except Exception as e:
+            print(f"Image generation error: {e}")
 
     full_caption = f"{post_item['caption']}\n\n{post_item['hashtags']}"
     user_data_dir = os.path.join(BASE_DIR, "browser_session_acc2")
+    state_file = os.path.join(BASE_DIR, "session_acc2.json")
 
     with sync_playwright() as p:
-        browser = p.chromium.launch_persistent_context(
-            user_data_dir,
-            headless=False,
-            viewport={"width": 1280, "height": 800}
-        )
-        page = browser.new_page()
+        if os.path.exists(user_data_dir):
+            print("🖥️ Using local persistent profile browser_session_acc2...")
+            browser = p.chromium.launch_persistent_context(
+                user_data_dir,
+                headless=False,
+                viewport={"width": 1280, "height": 800}
+            )
+            page = browser.new_page()
+        elif os.path.exists(state_file):
+            print("☁️ Using cloud storage state (session_acc2.json)...")
+            headless_browser = p.chromium.launch(headless=True)
+            context = headless_browser.new_context(
+                storage_state=state_file,
+                viewport={"width": 1280, "height": 800}
+            )
+            page = context.new_page()
+        else:
+            print("⚠️ Launching fresh context...")
+            headless_browser = p.chromium.launch(headless=True)
+            context = headless_browser.new_context(viewport={"width": 1280, "height": 800})
+            page = context.new_page()
 
         print("🌐 Navigating to Instagram...")
         for attempt in range(3):
@@ -91,10 +123,10 @@ def post_account_2():
                 time.sleep(3)
 
         # Check if login form is present
-        user_field = page.locator("input[name='username'], input[name='email'], input[aria-label*='username'], input[aria-label*='email'], input[aria-label*='Mobile']")
-        if user_field.count() > 0 and user_field.first.is_visible():
+        user_field = page.locator("input[name='username'], input[name='email'], input[aria-label*='username'], input[aria-label*='email'], input[aria-label*='Mobile']").first
+        if user_field.count() > 0 and user_field.is_visible():
             print(f"🔑 Logging in as @{username}...")
-            user_field.first.fill(username)
+            user_field.fill(username)
             time.sleep(1)
             
             pass_field = page.locator("input[name='password'], input[name='pass'], input[type='password']").first
@@ -105,22 +137,6 @@ def post_account_2():
             submit_btn = page.locator("button[type='submit'], button:has-text('Log in'), div[role='button']:has-text('Log in')").first
             submit_btn.click(force=True)
             time.sleep(8)
-
-        # Handle Verification Code if presented
-        code_input = page.locator("input[name='verificationCode'], input[placeholder='Code'], input[aria-label='Code'], input[type='text']").first
-        if "codeentry" in page.url or "challenge" in page.url or (code_input.count() > 0 and code_input.is_visible()):
-            print("\n" + "⚠️ "*15)
-            print("INSTAGRAM VERIFICATION CODE PROMPT DETECTED.")
-            print("Please enter the 6-digit code sent to your email directly in the Chrome window.")
-            print("Waiting up to 2 minutes for verification...")
-            print("⚠️ "*15 + "\n")
-
-            start_t = time.time()
-            while time.time() - start_t < 120:
-                if page.locator("svg[aria-label='New post'], svg[aria-label='New Post']").count() > 0 or "instagram.com/direct/" in page.url or page.locator("svg[aria-label='Home']").count() > 0:
-                    print("✅ Verification succeeded!")
-                    break
-                time.sleep(3)
 
         print("📸 Navigating Create menu...")
         for text in ["Not Now", "Not now", "Save Info", "Save info"]:
@@ -157,29 +173,36 @@ def post_account_2():
             file_input.first.set_input_files(local_image_path)
             time.sleep(4)
 
-        for step in range(2):
-            next_btn = page.locator("div[role='button']:has-text('Next'), button:has-text('Next')").first
-            if next_btn.is_visible():
-                print(f"➡️ Clicking Next ({step+1}/2)...")
-                next_btn.click(force=True)
-                time.sleep(3)
+            for step in range(2):
+                next_btn = page.locator("div[role='button']:has-text('Next'), button:has-text('Next')").first
+                if next_btn.is_visible():
+                    print(f"➡️ Clicking Next ({step+1}/2)...")
+                    next_btn.click(force=True)
+                    time.sleep(3)
 
-        caption_area = page.locator("div[aria-label='Write a caption...'], textarea[aria-label='Write a caption...']").first
-        if caption_area.is_visible():
-            print("✍️ Filling caption...")
-            caption_area.fill(full_caption)
-            time.sleep(2)
+            caption_area = page.locator("div[aria-label='Write a caption...'], textarea[aria-label='Write a caption...']").first
+            if caption_area.is_visible():
+                print("✍️ Filling caption...")
+                caption_area.fill(full_caption)
+                time.sleep(2)
 
-        share_btn = page.locator("div[role='button']:has-text('Share'), button:has-text('Share')").first
-        if share_btn.is_visible():
-            print("🚀 Clicking Share...")
-            share_btn.click(force=True)
-            time.sleep(12)
-            print(f"🎉 SUCCESS! Published Day {day_num} to @{username}!")
-            update_current_day(day_num + 1)
-            print(f"🔄 Day counter updated to Day {day_num + 1}.")
+            share_btn = page.locator("div[role='button']:has-text('Share'), button:has-text('Share')").first
+            if share_btn.is_visible():
+                print("🚀 Clicking Share...")
+                share_btn.click(force=True)
+                time.sleep(12)
+                print(f"🎉 SUCCESS! Published Post #{day_num} to @{username}!")
+                update_current_day(day_num + 1)
+                print(f"🔄 Counter updated to Post #{day_num + 1}.")
+            else:
+                print("Warning: Share button not found")
         else:
-            print("Warning: Share button not found")
+            print("⚠️ Upload modal not found.")
+
+        # Save updated state
+        if os.path.exists(user_data_dir):
+            browser.storage_state(path=state_file)
+            print(f"💾 Storage state refreshed in {state_file}")
 
         browser.close()
 
